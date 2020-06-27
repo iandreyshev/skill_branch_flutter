@@ -1,5 +1,7 @@
 import 'package:FlutterGalleryApp/models/user.dart';
 
+import 'models/user.dart';
+
 class UserHolder {
   Map<String, User> users = {};
 
@@ -40,5 +42,15 @@ class UserHolder {
 
   void setFriends(String login, List<User> friends) {
     users[login].addFriends(friends);
+  }
+
+  User findUserInFriends(String fullName, User friend) {
+    users.forEach((key, value) {
+      if (value.name == fullName && value.friends.contains(friend)) {
+        return friend;
+      }
+    });
+
+    throw Exception();
   }
 }
