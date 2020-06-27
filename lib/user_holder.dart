@@ -1,56 +1,74 @@
-import 'package:FlutterGalleryApp/models/user.dart';
-
 import 'models/user.dart';
+
 
 class UserHolder {
   Map<String, User> users = {};
 
-  User registerUser(String name, String phone, String email) {
+  void registerUser(String name, String phone, String email) {
     User user = User(name: name, phone: phone, email: email);
 
     if (!users.containsKey(user.login)) {
       users[user.login] = user;
     } else {
-      throw Exception('A user with this name already exists');
+      throw Exception("User with this name already exists");
     }
   }
 
   User registerUserByEmail(String fullName, String email) {
-    bool hasUserWithSameEmail = users.containsKey(email);
+    User user = User(name: fullName, email: email);
 
-    if (hasUserWithSameEmail) {
+    if (!users.containsKey(user.login)) {
+      users[user.login] = user;
+      return user;
+    } else {
       throw Exception("A user with this email already exists");
     }
-
-    return User();
   }
 
   User registerUserByPhone(String fullName, String phone) {
-    if (phone == null || phone.isEmpty) {
-      throw Exception('Enter don\'t empty phone number');
-    }
+    User user = User(name: fullName, phone: phone);
 
-    bool isValidPhoneNumber = phone.startsWith('+') && phone.length == 12;
-    bool hasUserWithSamePhone = users.containsKey(phone);
-
-    if (hasUserWithSamePhone) {
-      throw Exception('A user with this phone already exists');
+    if (!users.containsKey(user.login)) {
+      users[user.login] = user;
+      return user;
+    } else {
+      throw Exception("A user with this phone already exists");
     }
   }
 
-  User getUserByLogin(String login) => users[login];
+  User getUserByLogin(String login) {
+    for (var value in users.values) {
+      if (value.login == login) {
+        return value;
+      }
+    }
+    return null;
+  }
 
   void setFriends(String login, List<User> friends) {
-    users[login].addFriends(friends);
+    getUserByLogin(login).addFriends(friends);
   }
 
-  User findUserInFriends(String fullName, User friend) {
-    users.forEach((key, value) {
-      if (value.name == fullName && value.friends.contains(friend)) {
-        return friend;
-      }
-    });
+  User findUserInFriends(String login, User user) {
+    List<User> friends = getUserByLogin(login).friends;
+    for (User data in friends) {
+      if (data == user) return user;
+    }
+    throw Exception("${user.login} is not a friend of the login");
+  }
 
-    throw Exception();
+  List<User> importUsers(List<String> stringUser) {
+    List<User> listUser = <User>[];
+
+    for (String data in stringUser) {
+      List<String> userString = data.split(";\n");
+      String name = userString[0].substring(6);
+      String email = userString[1].substring(6);
+      String phone = userString[2].substring(6);
+
+      User user = User(name: name, email: email, phone: phone);
+      listUser.add(user);
+    }
+    return listUser;
   }
 }
